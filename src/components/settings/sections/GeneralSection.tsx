@@ -22,6 +22,7 @@ const SUPPORTED_LANGUAGES = [
   { code: 'en', name: 'English' },
   { code: 'vi', name: 'Tiếng Việt' },
   { code: 'zh-CN', name: '简体中文' },
+  { code: 'fr', name: 'Français' },
 ];
 
 const isMacOS = navigator.platform.includes('Mac');

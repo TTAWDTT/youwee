@@ -10,6 +10,14 @@ import enPages from './locales/en/pages.json';
 import enSettings from './locales/en/settings.json';
 import enSubtitles from './locales/en/subtitles.json';
 import enUniversal from './locales/en/universal.json';
+import frChannels from './locales/fr/channels.json';
+import frCommon from './locales/fr/common.json';
+import frDownload from './locales/fr/download.json';
+import frMetadata from './locales/fr/metadata.json';
+import frPages from './locales/fr/pages.json';
+import frSettings from './locales/fr/settings.json';
+import frSubtitles from './locales/fr/subtitles.json';
+import frUniversal from './locales/fr/universal.json';
 import viChannels from './locales/vi/channels.json';
 import viCommon from './locales/vi/common.json';
 import viDownload from './locales/vi/download.json';
@@ -37,6 +45,16 @@ const resources = {
     pages: enPages,
     settings: enSettings,
     subtitles: enSubtitles,
+  },
+  fr: {
+    common: frCommon,
+    channels: frChannels,
+    download: frDownload,
+    metadata: frMetadata,
+    universal: frUniversal,
+    pages: frPages,
+    settings: frSettings,
+    subtitles: frSubtitles,
   },
   vi: {
     common: viCommon,
