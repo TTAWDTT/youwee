@@ -11,7 +11,7 @@ use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
-use crate::utils::validate_url;
+use crate::utils::{normalize_url, validate_url};
 use tauri::{AppHandle, Emitter};
 use tauri_plugin_shell::ShellExt;
 use tauri_plugin_shell::process::CommandEvent;
@@ -211,7 +211,8 @@ pub async fn download_video(
 ) -> Result<(), String> {
     CANCEL_FLAG.store(false, Ordering::SeqCst);
     validate_url(&url).map_err(|e| BackendError::from_message(e).to_wire_string())?;
-    
+    let url = normalize_url(&url);
+
     let should_log_stderr = log_stderr.unwrap_or(true);
     let sanitized_path =
         sanitize_output_path(&output_path).map_err(|e| BackendError::from_message(e).to_wire_string())?;
