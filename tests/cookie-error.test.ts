@@ -25,6 +25,15 @@ describe('inferCookieErrorType', () => {
     ).toBe('db_locked');
   });
 
+  test('falls back to message detection when backend code is generic', () => {
+    expect(
+      inferCookieErrorType(
+        'PROCESS_EXIT_NON_ZERO',
+        'ERROR: failed to decrypt DPAPI protected cookie data because permission denied on cookies',
+      ),
+    ).toBe('db_locked');
+  });
+
   test('does not treat generic cookies required errors as fresh_required', () => {
     expect(
       inferCookieErrorType(
