@@ -288,6 +288,7 @@ export function DownloadPage({ onNavigateToSettings }: DownloadPageProps) {
         return (
           <BrowserCookieErrorDialog
             browserName={cookieSettings.browser}
+            errorType={cookieError.errorType}
             onRetry={() => retryFailedDownload(itemId)}
             onDismiss={clearCookieError}
             onGoToSettings={onNavigateToSettings}

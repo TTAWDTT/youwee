@@ -55,7 +55,16 @@ export function inferBackendErrorCode(message: string): string {
   if (m.includes('could not copy') && m.includes('cookie') && m.includes('database')) {
     return 'YT_COOKIE_DB_LOCKED';
   }
-  if (m.includes('fresh cookies')) return 'YT_FRESH_COOKIES_REQUIRED';
+  if (
+    m.includes('fresh cookies') ||
+    m.includes('fresh login cookies') ||
+    (m.includes('douyin') &&
+      m.includes('cookies') &&
+      m.includes('fresh') &&
+      (m.includes('needed') || m.includes('requires')))
+  ) {
+    return 'YT_FRESH_COOKIES_REQUIRED';
+  }
   if (m.includes('429') || m.includes('too many requests') || m.includes('rate limited')) {
     return 'YT_RATE_LIMITED';
   }

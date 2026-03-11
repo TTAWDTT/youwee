@@ -17,6 +17,7 @@ import {
   localizeBackendError,
   localizeProgressError,
 } from '@/lib/backend-error';
+import { inferCookieErrorType } from '@/lib/cookie-error';
 import {
   AUTO_RETRY_LIMITS,
   clampAutoRetryDelaySeconds,
@@ -251,7 +252,7 @@ interface UniversalContextType {
   updateLiveFromStart: (enabled: boolean) => void;
   updateAutoRetry: (enabled: boolean, maxAttempts: number, delaySeconds: number) => void;
   // Cookie error detection
-  cookieError: { show: boolean; itemId?: string } | null;
+  cookieError: { show: boolean; itemId?: string; errorType: 'db_locked' | 'fresh_required' } | null;
   clearCookieError: () => void;
   retryFailedDownload: (itemId: string) => void;
   // Per-item time range
@@ -271,7 +272,11 @@ export function UniversalProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<DownloadItem[]>([]);
   const [focusedItemId, setFocusedItemId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [cookieError, setCookieError] = useState<{ show: boolean; itemId?: string } | null>(null);
+  const [cookieError, setCookieError] = useState<{
+    show: boolean;
+    itemId?: string;
+    errorType: 'db_locked' | 'fresh_required';
+  } | null>(null);
 
   // Load saved settings on init
   const [settings, setSettings] = useState<UniversalSettings>(() => {
@@ -374,16 +379,12 @@ export function UniversalProvider({ children }: { children: ReactNode }) {
     const unlisten = listen<DownloadProgress>('download-progress', (event) => {
       const progress = event.payload;
 
-      // Detect cookie error on Windows (lock error or DPAPI/App-Bound Encryption)
-      const cookieErrorPattern =
-        /could not copy.*cookie|permission denied.*cookies|cookie.*database|failed to.*cookie|failed to decrypt.*dpapi|app.bound.encryption/i;
-      const cookieErrorCodes = new Set(['YT_COOKIE_DB_LOCKED', 'YT_FRESH_COOKIES_REQUIRED']);
-      if (
-        progress.status === 'error' &&
-        ((progress.error_code && cookieErrorCodes.has(progress.error_code)) ||
-          (progress.error_message && cookieErrorPattern.test(progress.error_message)))
-      ) {
-        setCookieError({ show: true, itemId: progress.id });
+      // Detect cookie errors from structured backend codes first, then shared fallback inference.
+      if (progress.status === 'error') {
+        const cookieErrorType = inferCookieErrorType(progress.error_code, progress.error_message);
+        if (cookieErrorType) {
+          setCookieError({ show: true, itemId: progress.id, errorType: cookieErrorType });
+        }
       }
 
       setItems((currentItems) =>

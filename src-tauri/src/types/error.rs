@@ -161,7 +161,13 @@ pub fn infer_error_code(message: &str) -> &'static str {
     if m.contains("could not copy") && m.contains("cookie") && m.contains("database") {
         return code::YT_COOKIE_DB_LOCKED;
     }
-    if m.contains("fresh cookies") {
+    if m.contains("fresh cookies")
+        || m.contains("fresh login cookies")
+        || m.contains("douyin")
+            && m.contains("cookies")
+            && m.contains("fresh")
+            && (m.contains("needed") || m.contains("requires"))
+    {
         return code::YT_FRESH_COOKIES_REQUIRED;
     }
     if m.contains("429") || m.contains("too many requests") || m.contains("rate limited") {
@@ -296,4 +302,22 @@ fn escape_json_string(input: &str) -> String {
         .replace('\n', "\\n")
         .replace('\r', "\\r")
         .replace('\t', "\\t")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{code, infer_error_code};
+
+    #[test]
+    fn detects_fresh_login_cookies_as_fresh_cookie_error() {
+        let message =
+            "This Douyin/TikTok content requires fresh login cookies. Please refresh login and retry.";
+        assert_eq!(infer_error_code(message), code::YT_FRESH_COOKIES_REQUIRED);
+    }
+
+    #[test]
+    fn keeps_generic_cookie_required_errors_out_of_fresh_cookie_code() {
+        let message = "Sign in required. Cookies are required to access this content.";
+        assert_eq!(infer_error_code(message), code::YT_SIGNIN_REQUIRED);
+    }
 }

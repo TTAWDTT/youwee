@@ -282,6 +282,7 @@ export function UniversalPage({ onNavigateToSettings }: UniversalPageProps) {
         return (
           <BrowserCookieErrorDialog
             browserName={loadCookieSettings().browser}
+            errorType={cookieError.errorType}
             onRetry={() => retryFailedDownload(itemId)}
             onDismiss={clearCookieError}
             onGoToSettings={onNavigateToSettings}
